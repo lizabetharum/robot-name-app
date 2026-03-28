@@ -266,17 +266,7 @@ body{font-family:'Montserrat',sans-serif;background:#f5f5f7;color:#2B2D42;min-he
 <!-- YOU DO -->
 <div class="view" id="view-youdo">
   <div class="section-title">Control the variables yourself</div>
-  <p class="section-sub">Move the sliders and edit the word lists. Watch the name and equations update in real time.</p>
-
-  <div class="discovery-prompt">
-    <div class="dp-label">Notice + wonder</div>
-    <div class="dp-text">The equations use <strong>mod</strong> to keep results inside the word lists. The divisor in each mod equation comes directly from the list length — it is not a fixed number. Try adding or removing words, then look at the equations below.</div>
-    <div class="dp-questions">
-      <div class="dp-q">What changed in the mod equation when you added a word?</div>
-      <div class="dp-q">Does the name change even if you keep the sliders in the same position? Why?</div>
-      <div class="dp-q">What would happen if you had only 1 word in a list?</div>
-    </div>
-  </div>
+  <p class="section-sub">Move the sliders and watch the highlighted word jump in the lists below. Edit the lists and watch the equations change.</p>
 
   <div class="explore-grid">
     <div class="explore-card">
@@ -299,22 +289,10 @@ body{font-family:'Montserrat',sans-serif;background:#f5f5f7;color:#2B2D42;min-he
     </div>
   </div>
 
-  <div class="preview-box">
-    <div class="preview-name" id="you-name">-- -- --</div>
-    <div class="preview-math" id="you-math">set the sliders above</div>
-  </div>
-
-  <div class="live-calc">
-    <div class="calc-row"><div class="calc-label">a = 2x + y − 1</div><div class="calc-val" id="lc-a">--</div></div>
-    <div class="calc-row"><div class="calc-label">adjective index (a mod <span class="mod-val" id="mod-adj-val">26</span>)</div><div class="calc-val" id="lc-ai">--</div></div>
-    <div class="calc-row"><div class="calc-label">b = (a + z) mod <span class="mod-val" id="mod-ani-val">12</span></div><div class="calc-val" id="lc-b">--</div></div>
-    <div class="calc-row"><div class="calc-label">n = 3z² − x</div><div class="calc-val" id="lc-n">--</div></div>
-  </div>
-
-  <div class="list-editor">
+  <div class="list-editor" style="margin-bottom:16px;">
     <div class="le-header">
       <div class="le-title">Edit the word lists</div>
-      <div class="le-sub">Words are checked by AI — only real adjectives and animals are accepted</div>
+      <div class="le-sub">Highlighted word = current selection. Move sliders to see it change. Add words to change the equations.</div>
     </div>
     <div class="le-tabs">
       <button class="le-tab active" onclick="switchListTab('adj',event)">Adjectives (<span id="le-adj-count">26</span>)</button>
@@ -345,6 +323,28 @@ body{font-family:'Montserrat',sans-serif;background:#f5f5f7;color:#2B2D42;min-he
           <span class="limit-note">Min 3 · Max 20 words</span>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="preview-box">
+    <div class="preview-name" id="you-name">-- -- --</div>
+    <div class="preview-math" id="you-math">set the sliders above</div>
+  </div>
+
+  <div class="live-calc">
+    <div class="calc-row"><div class="calc-label">a = 2x + y − 1</div><div class="calc-val" id="lc-a">--</div></div>
+    <div class="calc-row"><div class="calc-label">adjective index (a mod <span class="mod-val" id="mod-adj-val">26</span>)</div><div class="calc-val" id="lc-ai">--</div></div>
+    <div class="calc-row"><div class="calc-label">b = (a + z) mod <span class="mod-val" id="mod-ani-val">12</span></div><div class="calc-val" id="lc-b">--</div></div>
+    <div class="calc-row"><div class="calc-label">n = 3z² − x</div><div class="calc-val" id="lc-n">--</div></div>
+  </div>
+
+  <div class="discovery-prompt" style="margin-top:16px;">
+    <div class="dp-label">Notice + wonder</div>
+    <div class="dp-text">The equations use <strong>mod</strong> to keep results inside the word lists. The divisor in each mod equation comes directly from the list length — it is not a fixed number. Try adding or removing words, then look at the equations above.</div>
+    <div class="dp-questions">
+      <div class="dp-q">What changed in the mod equation when you added a word?</div>
+      <div class="dp-q">Does the name change even if you keep the sliders in the same position? Why?</div>
+      <div class="dp-q">What would happen if you had only 1 word in a list?</div>
     </div>
   </div>
 
