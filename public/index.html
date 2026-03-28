@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot Team Name Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Montserrat',sans-serif;background:#f5f5f7;color:#2B2D42;min-height:100vh;}
+:root{--slate:#2B2D42;--red:#EF233C;--ice:#EDF2F4;--steel:#8D99AE;}
+
+.header{background:var(--slate);padding:16px 24px;display:flex;align-items:center;gap:12px;}
+.header-title{font-size:16px;font-weight:800;color:white;letter-spacing:-.01em;}
+.header-title span{color:var(--red);}
+.header-sub{font-size:11px;color:var(--steel);font-weight:400;}
+
+.container{max-width:700px;margin:0 auto;padding:24px 16px 48px;}
+
+.tab-bar{display:flex;border-bottom:2px solid var(--slate);margin-bottom:24px;}
+.tab{padding:10px 18px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:none;background:transparent;color:var(--steel);border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .15s;line-height:1.4;}
+.tab.active{color:var(--red);border-bottom-color:var(--red);}
+.tab:hover:not(.active){color:var(--slate);}
+.tab-label{font-size:9px;font-weight:400;color:var(--steel);display:block;text-transform:none;letter-spacing:0;margin-top:1px;}
+.tab.active .tab-label{color:var(--red);opacity:.7;}
+
+.view{display:none;}.view.active{display:block;}
+
+.section-title{font-size:18px;font-weight:800;color:var(--slate);margin-bottom:4px;}
+.section-sub{font-size:13px;color:var(--steel);margin-bottom:20px;line-height:1.55;}
+
+/* SEED ROW */
+.seed-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
+.seed-card{background:white;border-radius:10px;padding:16px;text-align:center;border:1.5px solid var(--ice);}
+.seed-card .label{font-size:11px;font-weight:700;color:var(--steel);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.seed-card .value{font-size:32px;font-weight:800;color:var(--slate);}
+
+.generate-btn{width:100%;padding:16px;background:var(--red);color:white;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.02em;transition:opacity .15s,transform .1s;margin-bottom:20px;}
+.generate-btn:hover{opacity:.9;}.generate-btn:active{transform:scale(.99);}
+
+.name-display{background:var(--slate);border-radius:12px;padding:32px 24px;text-align:center;margin-bottom:20px;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.team-name{font-size:28px;font-weight:800;color:white;line-height:1.2;}
+.team-name span{color:var(--red);}
+.name-placeholder{font-size:14px;color:var(--steel);}
+
+.math-trail{border:1.5px solid var(--ice);border-radius:10px;overflow:hidden;background:white;}
+.math-row{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--ice);gap:12px;}
+.math-row:last-child{border-bottom:none;}
+.math-part{font-size:10px;font-weight:700;color:var(--steel);text-transform:uppercase;letter-spacing:.05em;min-width:80px;}
+.math-eq{font-size:12px;color:var(--slate);flex:1;font-family:'Courier New',monospace;}
+.math-result{font-size:13px;font-weight:800;color:var(--red);min-width:70px;text-align:right;}
+
+/* WE DO */
+.step-block{border-left:4px solid var(--ice);padding-left:16px;margin-bottom:22px;transition:border-color .3s;}
+.step-block.active{border-left-color:var(--red);}
+.step-num{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);margin-bottom:4px;}
+.step-block.active .step-num{color:var(--red);}
+.step-title{font-size:15px;font-weight:800;color:var(--slate);margin-bottom:6px;}
+.step-explain{font-size:13px;color:var(--steel);line-height:1.65;margin-bottom:8px;}
+.step-block.active .step-explain{color:var(--slate);}
+.step-eq{background:var(--ice);border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--slate);font-family:'Courier New',monospace;display:none;margin-bottom:8px;line-height:1.5;}
+.step-block.active .step-eq{display:block;}
+
+.coeff-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 8px;}
+.coeff-card{background:var(--ice);border-radius:8px;padding:10px 12px;}
+.cc-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--steel);margin-bottom:4px;}
+.cc-val{font-size:22px;font-weight:800;color:var(--red);}
+.cc-desc{font-size:11px;color:var(--slate);margin-top:3px;line-height:1.4;}
+
+.range-note{background:#fff5f6;border-left:3px solid var(--red);padding:12px 14px;font-size:12px;color:var(--slate);line-height:1.65;display:none;margin-bottom:8px;border-radius:0 6px 6px 0;}
+.step-block.active .range-note{display:block;}
+.range-note strong{font-weight:800;color:var(--red);}
+
+.step-nav{display:flex;gap:10px;margin-top:4px;}
+.step-btn{padding:10px 22px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid var(--slate);background:transparent;color:var(--slate);transition:background .15s;}
+.step-btn.primary{background:var(--red);border-color:var(--red);color:white;}
+.step-btn:disabled{opacity:.3;cursor:default;}
+.concept-box{background:var(--ice);border-radius:10px;padding:16px;margin-top:16px;font-size:13px;color:var(--slate);line-height:1.7;}
+.concept-box strong{font-weight:700;color:var(--red);}
+
+/* WORD LIST PANEL */
+.wlp{margin-top:16px;border:1.5px solid var(--ice);border-radius:10px;overflow:hidden;background:white;}
+.wlp-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--ice);cursor:pointer;user-select:none;}
+.wlp-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--slate);}
+.wlp-toggle{font-size:11px;font-weight:600;color:var(--steel);}
+.wlp-body{display:none;padding:14px 16px;}
+.wlp-body.open{display:block;}
+.wlp-sub{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--steel);margin-bottom:8px;margin-top:14px;}
+.wlp-sub:first-child{margin-top:0;}
+.word-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--ice);border:1.5px solid #dde;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--slate);}
+.chip.highlight{border-color:var(--red);color:var(--red);background:#fff5f6;}
+.chip .idx{font-size:10px;font-weight:400;color:var(--steel);}
+.readonly-note{font-size:11px;color:var(--steel);margin-top:12px;padding:8px 10px;background:var(--ice);border-radius:6px;line-height:1.5;}
+
+/* YOU DO */
+.discovery-prompt{border:2px solid var(--slate);border-radius:10px;padding:16px;margin-bottom:20px;background:white;}
+.dp-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--slate);margin-bottom:8px;}
+.dp-text{font-size:13px;color:var(--slate);line-height:1.65;}
+.dp-text strong{font-weight:800;color:var(--red);}
+.dp-questions{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+.dp-q{font-size:13px;color:var(--slate);padding-left:16px;position:relative;line-height:1.5;}
+.dp-q::before{content:'';position:absolute;left:2px;top:8px;width:6px;height:6px;border-radius:50%;background:var(--red);}
+
+.explore-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.explore-card{background:white;border-radius:10px;padding:16px;border:1.5px solid var(--ice);}
+.explore-card label{font-size:10px;font-weight:700;color:var(--steel);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;}
+.var-name{font-size:12px;font-weight:600;color:var(--slate);margin-bottom:10px;}
+.explore-card input[type=range]{width:100%;margin-bottom:4px;accent-color:var(--red);}
+.range-val{font-size:24px;font-weight:800;color:var(--red);}
+
+.preview-box{background:var(--slate);border-radius:12px;padding:22px;text-align:center;margin-bottom:20px;}
+.preview-name{font-size:22px;font-weight:800;color:white;margin-bottom:6px;min-height:32px;}
+.preview-name span{color:var(--red);}
+.preview-math{font-size:10px;color:var(--steel);letter-spacing:.05em;text-transform:uppercase;}
+
+.live-calc{border:1.5px solid var(--ice);border-radius:10px;padding:16px;margin-bottom:20px;background:white;}
+.calc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--ice);font-size:13px;}
+.calc-row:last-child{border-bottom:none;}
+.calc-label{color:var(--steel);font-size:12px;}
+.calc-val{font-weight:700;color:var(--slate);font-family:'Courier New',monospace;font-size:12px;}
+.mod-val{transition:color .4s,font-weight .4s;}
+.mod-val.flash{color:var(--red);font-weight:800;}
+
+/* LIST EDITOR */
+.list-editor{border:1.5px solid var(--ice);border-radius:10px;overflow:hidden;margin-bottom:20px;background:white;}
+.le-header{padding:14px 16px;background:var(--ice);}
+.le-title{font-size:13px;font-weight:800;color:var(--slate);}
+.le-sub{font-size:11px;color:var(--steel);margin-top:2px;}
+.le-tabs{display:flex;border-bottom:1px solid var(--ice);}
+.le-tab{padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--steel);border-bottom:2px solid transparent;margin-bottom:-1px;font-family:'Montserrat',sans-serif;}
+.le-tab.active{color:var(--red);border-bottom-color:var(--red);}
+.le-body{padding:14px 16px;}
+.add-row{display:flex;gap:8px;margin-bottom:12px;align-items:center;}
+.add-row input{flex:1;padding:9px 12px;border:1.5px solid var(--ice);border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;color:var(--slate);outline:none;transition:border-color .15s;}
+.add-row input:focus{border-color:var(--red);}
+.add-btn{padding:9px 16px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:800;cursor:pointer;border:none;background:var(--red);color:white;white-space:nowrap;min-width:70px;transition:opacity .15s;}
+.add-btn:disabled{opacity:.4;cursor:default;}
+.add-btn.checking{background:var(--steel);}
+
+.validation-msg{font-size:11px;margin-bottom:10px;padding:7px 10px;border-radius:6px;display:none;}
+.validation-msg.error{background:#fff0f1;color:var(--red);display:block;}
+.validation-msg.success{background:#f0fff4;color:#1a7a3c;display:block;}
+
+.le-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:6px;margin-bottom:12px;}
+.le-item{display:flex;align-items:center;gap:5px;background:var(--ice);border:1px solid #dde;border-radius:6px;padding:5px 8px;}
+.le-item.active-word{border-color:var(--red);background:#fff5f6;}
+.li-idx{font-size:10px;color:var(--steel);min-width:16px;}
+.le-item input{border:none;background:transparent;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;color:var(--slate);width:100%;outline:none;}
+.le-item input:focus{color:var(--red);}
+.remove-btn{font-size:15px;cursor:pointer;color:var(--steel);padding:0 1px;line-height:1;background:none;border:none;font-family:sans-serif;}
+.remove-btn:hover{color:var(--red);}
+.le-footer{display:flex;align-items:center;justify-content:space-between;}
+.reset-btn{font-size:11px;font-weight:700;color:var(--steel);background:none;border:none;cursor:pointer;font-family:'Montserrat',sans-serif;text-decoration:underline;}
+.limit-note{font-size:11px;color:var(--steel);}
+
+/* CHALLENGE */
+.challenge-box{border:2px dashed var(--red);border-radius:10px;padding:16px;margin-top:20px;background:white;}
+.challenge-title{font-size:11px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.challenge-text{font-size:13px;color:var(--slate);line-height:1.6;}
+.challenge-answer{margin-top:10px;padding:10px 12px;background:var(--ice);border-radius:8px;font-size:13px;color:var(--slate);display:none;line-height:1.6;}
+.challenge-answer.show{display:block;}
+.reveal-btn{margin-top:10px;font-size:12px;font-weight:700;color:var(--red);background:none;border:none;cursor:pointer;font-family:'Montserrat',sans-serif;text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">Robot Team Name <span>Generator</span></div>
+    <div class="header-sub">Algebra-powered · Velocity Arena</div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="tab-bar">
+  <button class="tab active" onclick="switchTab('ido',event)">I Do <span class="tab-label">Watch it work</span></button>
+  <button class="tab" onclick="switchTab('wedo',event)">We Do <span class="tab-label">Step through the math</span></button>
+  <button class="tab" onclick="switchTab('youdo',event)">You Do <span class="tab-label">Control the variables</span></button>
+</div>
+
+<!-- I DO -->
+<div class="view active" id="view-ido">
+  <div class="section-title">Generate your robot's team name</div>
+  <p class="section-sub">Three seed numbers go in. Algebra runs. A team name comes out. Hit Generate and read the math trail below.</p>
+  <div class="seed-row">
+    <div class="seed-card"><div class="label">x</div><div class="value" id="seed-x">--</div></div>
+    <div class="seed-card"><div class="label">y</div><div class="value" id="seed-y">--</div></div>
+    <div class="seed-card"><div class="label">z</div><div class="value" id="seed-z">--</div></div>
+  </div>
+  <button class="generate-btn" onclick="generate()">Generate team name</button>
+  <div class="name-display" id="name-display"><div class="name-placeholder">Your robot team name will appear here</div></div>
+  <div class="math-trail" id="math-trail" style="display:none;">
+    <div class="math-row"><div class="math-part">Adjective</div><div class="math-eq" id="eq-adj"></div><div class="math-result" id="res-adj"></div></div>
+    <div class="math-row"><div class="math-part">Animal</div><div class="math-eq" id="eq-animal"></div><div class="math-result" id="res-animal"></div></div>
+    <div class="math-row"><div class="math-part">Number</div><div class="math-eq" id="eq-num"></div><div class="math-result" id="res-num"></div></div>
+  </div>
+</div>
+
+<!-- WE DO -->
+<div class="view" id="view-wedo">
+  <div class="section-title">How the math works</div>
+  <p class="section-sub">Walk through each step. See exactly how algebra picks each piece of your team name.</p>
+
+  <div class="step-block active" id="step-0">
+    <div class="step-num">Step 1 of 4</div>
+    <div class="step-title">Start with random seed numbers</div>
+    <div class="step-explain">The generator picks three integers: x, y, and z. Each is a random whole number between 1 and 10. These are your variables — the raw inputs that drive everything else.</div>
+    <div class="step-eq" id="we-eq0"></div>
+  </div>
+
+  <div class="step-block" id="step-1">
+    <div class="step-num">Step 2 of 4</div>
+    <div class="step-title">Find the adjective using a linear equation</div>
+    <div class="step-explain">Plug x and y into <strong>a = 2x + y − 1</strong> to get a number. Then use that number to look up word number a in the adjectives list.<br><br>This is called a <strong>linear equation</strong> because neither variable is squared or multiplied together — every term is just a variable times a constant. If you graphed every (x, y) pair that produces the same value of a, you'd get a straight line.<br><br>The numbers in front of x and y are called <strong>coefficients</strong>. They control how much each variable affects the result:</div>
+    <div class="coeff-row">
+      <div class="coeff-card"><div class="cc-label">x has coefficient</div><div class="cc-val">2</div><div class="cc-desc">Every time x goes up by 1, a goes up by 2. x has the bigger impact.</div></div>
+      <div class="coeff-card"><div class="cc-label">y has coefficient</div><div class="cc-val">1</div><div class="cc-desc">Every time y goes up by 1, a goes up by 1. Half the impact of x.</div></div>
+    </div>
+    <div class="step-explain" style="margin-top:8px;">The <strong>− 1</strong> at the end is a constant. It shifts every result down by 1 regardless of what x and y are. Without it, the smallest possible output would be 2(1) + 1 = 3. With it, the smallest is 2. That small shift spreads results more evenly across the low end of the list.</div>
+    <div class="step-eq" id="we-eq1"></div>
+    <div class="range-note">
+      <strong>Why does the result always land on a real word?</strong><br><br>
+      The adjective list has <span id="we-adj-count">26</span> words, numbered 0 to <span id="we-adj-max">25</span>. x goes up to 10 and y goes up to 10, so the biggest possible value of a is 2(10) + 10 − 1 = 29. That is too high — index 29 does not exist in the list.<br><br>
+      To fix this, the generator uses <strong>a mod <span class="we-adj-mod"></span></strong>, which gives the remainder after dividing by <span class="we-adj-mod"></span>. So if a = 29, then 29 mod <span class="we-adj-mod"></span> = <span id="we-mod-example"></span>, and that index lands on a real word.
+    </div>
+  </div>
+
+  <div class="step-block" id="step-2">
+    <div class="step-num">Step 3 of 4</div>
+    <div class="step-title">Find the animal using substitution</div>
+    <div class="step-explain">Take the adjective result a and substitute it into <strong>b = (a + z) mod <span class="we-ani-mod"></span></strong>. Mod <span class="we-ani-mod"></span> keeps b between 0 and <span id="we-ani-max">11</span> no matter how large a gets. There are exactly <span id="we-ani-count">12</span> animals in the list, so every value of b lands on one.</div>
+    <div class="step-eq" id="we-eq2"></div>
+  </div>
+
+  <div class="step-block" id="step-3">
+    <div class="step-num">Step 4 of 4</div>
+    <div class="step-title">Build the team number</div>
+    <div class="step-explain">The team number comes from <strong>n = 3z² − x</strong>. Square z first, multiply by 3, then subtract x. Larger z values produce bigger numbers, giving elite teams four-digit names.</div>
+    <div class="step-eq" id="we-eq3"></div>
+  </div>
+
+  <div class="step-nav">
+    <button class="step-btn" id="prev-btn" onclick="stepNav(-1)" disabled>Back</button>
+    <button class="step-btn primary" id="next-btn" onclick="stepNav(1)">Next step</button>
+  </div>
+  <div class="concept-box" id="concept-box"><strong>Key concept:</strong> Variables let us write one rule that works for any input. Change x or y and you get a different adjective, but the equation stays the same.</div>
+
+  <div class="wlp">
+    <div class="wlp-header" onclick="toggleWLP()">
+      <span class="wlp-title">View the word lists</span>
+      <span class="wlp-toggle" id="wlp-toggle-label">Show</span>
+    </div>
+    <div class="wlp-body" id="wlp-body">
+      <div class="wlp-sub">Adjectives (<span id="wlp-adj-count">26</span> words — index 0 to <span id="wlp-adj-max">25</span>)</div>
+      <div class="word-chips" id="wlp-adj-chips"></div>
+      <div class="wlp-sub">Animals (<span id="wlp-ani-count">12</span> words — index 0 to <span id="wlp-ani-max">11</span>)</div>
+      <div class="word-chips" id="wlp-ani-chips"></div>
+      <div class="readonly-note">These lists are fixed in this view. Head to "You Do" to add, remove, or rename words — and watch what happens to the equations when you do.</div>
+    </div>
+  </div>
+</div>
+
+<!-- YOU DO -->
+<div class="view" id="view-youdo">
+  <div class="section-title">Control the variables yourself</div>
+  <p class="section-sub">Move the sliders and edit the word lists. Watch the name and equations update in real time.</p>
+
+  <div class="discovery-prompt">
+    <div class="dp-label">Notice + wonder</div>
+    <div class="dp-text">The equations use <strong>mod</strong> to keep results inside the word lists. The divisor in each mod equation comes directly from the list length — it is not a fixed number. Try adding or removing words, then look at the equations below.</div>
+    <div class="dp-questions">
+      <div class="dp-q">What changed in the mod equation when you added a word?</div>
+      <div class="dp-q">Does the name change even if you keep the sliders in the same position? Why?</div>
+      <div class="dp-q">What would happen if you had only 1 word in a list?</div>
+    </div>
+  </div>
+
+  <div class="explore-grid">
+    <div class="explore-card">
+      <label>Variable x</label>
+      <div class="var-name">Coefficient 2 — bigger impact</div>
+      <input type="range" min="1" max="10" value="5" step="1" id="slider-x" oninput="updateExplore()">
+      <div class="range-val" id="val-x">5</div>
+    </div>
+    <div class="explore-card">
+      <label>Variable y</label>
+      <div class="var-name">Coefficient 1 — smaller impact</div>
+      <input type="range" min="1" max="10" value="3" step="1" id="slider-y" oninput="updateExplore()">
+      <div class="range-val" id="val-y">3</div>
+    </div>
+    <div class="explore-card" style="grid-column:1/-1;">
+      <label>Variable z</label>
+      <div class="var-name">Picks the animal + dominates the team number</div>
+      <input type="range" min="1" max="10" value="4" step="1" id="slider-z" oninput="updateExplore()">
+      <div class="range-val" id="val-z">4</div>
+    </div>
+  </div>
+
+  <div class="preview-box">
+    <div class="preview-name" id="you-name">-- -- --</div>
+    <div class="preview-math" id="you-math">set the sliders above</div>
+  </div>
+
+  <div class="live-calc">
+    <div class="calc-row"><div class="calc-label">a = 2x + y − 1</div><div class="calc-val" id="lc-a">--</div></div>
+    <div class="calc-row"><div class="calc-label">adjective index (a mod <span class="mod-val" id="mod-adj-val">26</span>)</div><div class="calc-val" id="lc-ai">--</div></div>
+    <div class="calc-row"><div class="calc-label">b = (a + z) mod <span class="mod-val" id="mod-ani-val">12</span></div><div class="calc-val" id="lc-b">--</div></div>
+    <div class="calc-row"><div class="calc-label">n = 3z² − x</div><div class="calc-val" id="lc-n">--</div></div>
+  </div>
+
+  <div class="list-editor">
+    <div class="le-header">
+      <div class="le-title">Edit the word lists</div>
+      <div class="le-sub">Words are checked by AI — only real adjectives and animals are accepted</div>
+    </div>
+    <div class="le-tabs">
+      <button class="le-tab active" onclick="switchListTab('adj',event)">Adjectives (<span id="le-adj-count">26</span>)</button>
+      <button class="le-tab" onclick="switchListTab('ani',event)">Animals (<span id="le-ani-count">12</span>)</button>
+    </div>
+    <div class="le-body">
+      <div id="le-adj-panel">
+        <div class="add-row">
+          <input type="text" id="adj-add-input" placeholder="Type an adjective..." maxlength="20" onkeydown="if(event.key==='Enter')addWord('adj')">
+          <button class="add-btn" id="adj-add-btn" onclick="addWord('adj')">Add</button>
+        </div>
+        <div class="validation-msg" id="adj-msg"></div>
+        <div class="le-grid" id="le-adj-grid"></div>
+        <div class="le-footer">
+          <button class="reset-btn" onclick="resetList('adj')">Reset to defaults</button>
+          <span class="limit-note">Min 3 · Max 40 words</span>
+        </div>
+      </div>
+      <div id="le-ani-panel" style="display:none;">
+        <div class="add-row">
+          <input type="text" id="ani-add-input" placeholder="Type an animal..." maxlength="20" onkeydown="if(event.key==='Enter')addWord('ani')">
+          <button class="add-btn" id="ani-add-btn" onclick="addWord('ani')">Add</button>
+        </div>
+        <div class="validation-msg" id="ani-msg"></div>
+        <div class="le-grid" id="le-ani-grid"></div>
+        <div class="le-footer">
+          <button class="reset-btn" onclick="resetList('ani')">Reset to defaults</button>
+          <span class="limit-note">Min 3 · Max 20 words</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="challenge-box">
+    <div class="challenge-title">Your challenge</div>
+    <div class="challenge-text">Set x = 2, y = 5, z = 3. What is the value of n? Work it out on paper using order of operations, then check your answer.</div>
+    <button class="reveal-btn" onclick="revealAnswer(this)">Show answer</button>
+    <div class="challenge-answer" id="challenge-answer">
+      <strong>n = 3(3²) − 2 = 3(9) − 2 = 27 − 2 = 25</strong><br>
+      Square z first. Then multiply by 3. Then subtract x. The team number is 25.
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+const DEFAULT_ADJS=['Atomic','Binary','Charged','Delta','Electric','Fierce','Galactic','Hyper','Iron','Kinetic','Laser','Magnetic','Nitro','Orbital','Plasma','Quantum','Rapid','Sonic','Turbo','Ultra','Vector','Warp','Xenon','Zero','Apex','Blaze'];
+const DEFAULT_ANIMALS=['Falcons','Jaguars','Raptors','Wolves','Cobras','Sharks','Vipers','Eagles','Panthers','Lynx','Stallions','Ravens'];
+let ADJS=[...DEFAULT_ADJS];
+let ANIMALS=[...DEFAULT_ANIMALS];
+let lastX=7,lastY=3,lastZ=5,lastAI=0,lastB=0;
+let currentStep=0,wlpOpen=false,activeListTab='adj';
+
+function computeAll(x,y,z){
+  const a=2*x+y-1;
+  const ai=((a%ADJS.length)+ADJS.length)%ADJS.length;
+  const b=((a+z)%ANIMALS.length+ANIMALS.length)%ANIMALS.length;
+  const n=3*z*z-x;
+  return{a,ai,b,n};
+}
+
+function generate(){
+  const x=Math.floor(Math.random()*10)+1;
+  const y=Math.floor(Math.random()*10)+1;
+  const z=Math.floor(Math.random()*10)+1;
+  lastX=x;lastY=y;lastZ=z;
+  document.getElementById('seed-x').textContent=x;
+  document.getElementById('seed-y').textContent=y;
+  document.getElementById('seed-z').textContent=z;
+  const{a,ai,b,n}=computeAll(x,y,z);
+  lastAI=ai;lastB=b;
+  const adj=ADJS[ai],animal=ANIMALS[b];
+  document.getElementById('name-display').innerHTML=`<div class="team-name">${adj} <span>${animal}</span> ${n}</div>`;
+  document.getElementById('eq-adj').textContent=`a = 2(${x}) + ${y} − 1 = ${a}  →  mod ${ADJS.length} = ${ai}  →  "${adj}"`;
+  document.getElementById('res-adj').textContent=adj;
+  document.getElementById('eq-animal').textContent=`b = (${a} + ${z}) mod ${ANIMALS.length} = ${b}  →  "${animal}"`;
+  document.getElementById('res-animal').textContent=animal;
+  document.getElementById('eq-num').textContent=`n = 3(${z})² − ${x} = ${n}`;
+  document.getElementById('res-num').textContent=n;
+  document.getElementById('math-trail').style.display='block';
+  updateWeDoWithSeeds(x,y,z);
+  if(wlpOpen)renderWLPChips();
+}
+
+function updateWeDoWithSeeds(x,y,z){
+  const{a,ai,b,n}=computeAll(x,y,z);
+  lastAI=ai;lastB=b;
+  const eq0=document.getElementById('we-eq0');if(eq0)eq0.textContent=`x = ${x},  y = ${y},  z = ${z}`;
+  const eq1=document.getElementById('we-eq1');if(eq1)eq1.textContent=`a = 2(${x}) + ${y} − 1 = ${a}  →  mod ${ADJS.length} = ${ai}  →  "${ADJS[ai]}"`;
+  const eq2=document.getElementById('we-eq2');if(eq2)eq2.textContent=`b = (${a} + ${z}) mod ${ANIMALS.length} = ${b}  →  "${ANIMALS[b]}"`;
+  const eq3=document.getElementById('we-eq3');if(eq3)eq3.textContent=`n = 3(${z})² − ${x} = 3×${z*z} − ${x} = ${n}`;
+  updateListMeta();
+}
+
+function updateListMeta(flashAdj,flashAni){
+  const al=ADJS.length,anl=ANIMALS.length;
+  const ids={
+    'we-adj-count':al,'we-adj-max':al-1,
+    'we-ani-count':anl,'we-ani-max':anl-1,
+    'wlp-adj-count':al,'wlp-adj-max':al-1,
+    'wlp-ani-count':anl,'wlp-ani-max':anl-1,
+    'le-adj-count':al,'le-ani-count':anl
+  };
+  Object.entries(ids).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.textContent=val;});
+  document.querySelectorAll('.we-adj-mod').forEach(el=>el.textContent=al);
+  document.querySelectorAll('.we-ani-mod').forEach(el=>el.textContent=anl);
+  const weMe=document.getElementById('we-mod-example');if(weMe)weMe.textContent=`29 mod ${al} = ${29%al}`;
+  const madj=document.getElementById('mod-adj-val');
+  const mani=document.getElementById('mod-ani-val');
+  if(madj){madj.textContent=al;if(flashAdj){madj.classList.add('flash');setTimeout(()=>madj.classList.remove('flash'),1200);}}
+  if(mani){mani.textContent=anl;if(flashAni){mani.classList.add('flash');setTimeout(()=>mani.classList.remove('flash'),1200);}}
+}
+
+function renderWLPChips(){
+  const ac=document.getElementById('wlp-adj-chips');
+  const anc=document.getElementById('wlp-ani-chips');
+  if(ac)ac.innerHTML=ADJS.map((w,i)=>`<div class="chip${i===lastAI?' highlight':''}"><span class="idx">${i}</span>${w}</div>`).join('');
+  if(anc)anc.innerHTML=ANIMALS.map((w,i)=>`<div class="chip${i===lastB?' highlight':''}"><span class="idx">${i}</span>${w}</div>`).join('');
+}
+
+function toggleWLP(){
+  wlpOpen=!wlpOpen;
+  document.getElementById('wlp-body').classList.toggle('open',wlpOpen);
+  document.getElementById('wlp-toggle-label').textContent=wlpOpen?'Hide':'Show';
+  if(wlpOpen)renderWLPChips();
+}
+
+function renderEditorGrid(type){
+  const list=type==='adj'?ADJS:ANIMALS;
+  const{ai,b}=computeAll(
+    parseInt(document.getElementById('slider-x').value),
+    parseInt(document.getElementById('slider-y').value),
+    parseInt(document.getElementById('slider-z').value)
+  );
+  const activeIdx=type==='adj'?ai:b;
+  const grid=document.getElementById(`le-${type}-grid`);
+  if(!grid)return;
+  grid.innerHTML=list.map((w,i)=>`
+    <div class="le-item${i===activeIdx?' active-word':''}" id="le-item-${type}-${i}">
+      <span class="li-idx">${i}</span>
+      <input type="text" value="${w}" maxlength="20"
+        onchange="editWord('${type}',${i},this.value)"
+        oninput="editWord('${type}',${i},this.value)">
+      ${list.length>3?`<button class="remove-btn" onclick="removeWord('${type}',${i})">×</button>`:''}
+    </div>`).join('');
+}
+
+function editWord(type,idx,val){
+  if(!val.trim())return;
+  if(type==='adj')ADJS[idx]=val.trim();else ANIMALS[idx]=val.trim();
+  updateExplore();updateWeDoWithSeeds(lastX,lastY,lastZ);if(wlpOpen)renderWLPChips();updateListMeta();
+}
+
+function removeWord(type,idx){
+  const list=type==='adj'?ADJS:ANIMALS;
+  if(list.length<=3)return;
+  list.splice(idx,1);
+  renderEditorGrid(type);updateExplore();updateWeDoWithSeeds(lastX,lastY,lastZ);if(wlpOpen)renderWLPChips();
+  updateListMeta(type==='adj',type==='ani');
+}
+
+async function addWord(type){
+  const input=document.getElementById(`${type}-add-input`);
+  const btn=document.getElementById(`${type}-add-btn`);
+  const msg=document.getElementById(`${type}-msg`);
+  const val=input.value.trim();
+  if(!val){showMsg(msg,'error','Type a word first.');return;}
+  const max=type==='adj'?40:20;
+  const list=type==='adj'?ADJS:ANIMALS;
+  if(list.length>=max){showMsg(msg,'error',`Maximum ${max} words reached.`);return;}
+
+  const cap=val.charAt(0).toUpperCase()+val.slice(1).toLowerCase();
+  if(list.map(w=>w.toLowerCase()).includes(cap.toLowerCase())){
+    showMsg(msg,'error',`"${cap}" is already in the list.`);return;
+  }
+
+  btn.disabled=true;btn.textContent='Checking...';btn.classList.add('checking');
+  msg.style.display='none';msg.className='validation-msg';
+
+  try{
+    const res=await fetch('/api/validate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({word:cap,type})
+    });
+    const data=await res.json();
+    if(data.valid){
+      list.push(cap);input.value='';
+      showMsg(msg,'success',`"${cap}" added.`);
+      renderEditorGrid(type);updateExplore();updateWeDoWithSeeds(lastX,lastY,lastZ);if(wlpOpen)renderWLPChips();
+      updateListMeta(type==='adj',type==='ani');
+    }else{
+      const hint=type==='adj'
+        ?`"${cap}" doesn't look like a descriptive adjective. Try something like Blazing, Rapid, or Stealth.`
+        :`"${cap}" doesn't look like an animal. Try something like Hawk, Tiger, or Orca.`;
+      showMsg(msg,'error',hint);
+    }
+  }catch(e){
+    showMsg(msg,'error','Could not check word — try again.');
+  }finally{
+    btn.disabled=false;btn.textContent='Add';btn.classList.remove('checking');
+  }
+}
+
+function showMsg(el,type,text){
+  el.textContent=text;
+  el.className='validation-msg '+type;
+  setTimeout(()=>{el.className='validation-msg';el.textContent='';},4000);
+}
+
+function resetList(type){
+  if(type==='adj')ADJS=[...DEFAULT_ADJS];else ANIMALS=[...DEFAULT_ANIMALS];
+  document.getElementById(`${type}-add-input`).value='';
+  renderEditorGrid(type);updateExplore();updateWeDoWithSeeds(lastX,lastY,lastZ);if(wlpOpen)renderWLPChips();
+  updateListMeta(type==='adj',type==='ani');
+}
+
+function switchListTab(type,e){
+  activeListTab=type;
+  document.querySelectorAll('.le-tab').forEach(t=>t.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById('le-adj-panel').style.display=type==='adj'?'block':'none';
+  document.getElementById('le-ani-panel').style.display=type==='ani'?'block':'none';
+  renderEditorGrid(type);
+}
+
+function updateExplore(){
+  const x=parseInt(document.getElementById('slider-x').value);
+  const y=parseInt(document.getElementById('slider-y').value);
+  const z=parseInt(document.getElementById('slider-z').value);
+  document.getElementById('val-x').textContent=x;
+  document.getElementById('val-y').textContent=y;
+  document.getElementById('val-z').textContent=z;
+  const{a,ai,b,n}=computeAll(x,y,z);
+  lastAI=ai;lastB=b;
+  document.getElementById('you-name').innerHTML=`${ADJS[ai]} <span>${ANIMALS[b]}</span> ${n}`;
+  document.getElementById('you-math').textContent=`x=${x},  y=${y},  z=${z}`;
+  document.getElementById('lc-a').textContent=`2(${x}) + ${y} − 1 = ${a}`;
+  document.getElementById('lc-ai').textContent=`${a} mod ${ADJS.length} = ${ai}`;
+  document.getElementById('lc-b').textContent=`(${a} + ${z}) mod ${ANIMALS.length} = ${b}`;
+  document.getElementById('lc-n').textContent=`3(${z})² − ${x} = ${n}`;
+  renderEditorGrid(activeListTab);
+  if(wlpOpen)renderWLPChips();
+}
+
+function switchTab(tab,e){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+tab).classList.add('active');
+  e.target.closest('.tab').classList.add('active');
+  if(tab==='wedo'){updateWeDoWithSeeds(lastX,lastY,lastZ);if(wlpOpen)renderWLPChips();}
+  if(tab==='youdo'){updateExplore();renderEditorGrid(activeListTab);}
+}
+
+function stepNav(dir){
+  document.getElementById('step-'+currentStep).classList.remove('active');
+  currentStep=Math.max(0,Math.min(3,currentStep+dir));
+  document.getElementById('step-'+currentStep).classList.add('active');
+  document.getElementById('prev-btn').disabled=currentStep===0;
+  document.getElementById('next-btn').disabled=currentStep===3;
+  const concepts=[
+    'A <strong>variable</strong> is just a placeholder for a number. x and y can be anything. Plug in any two integers and you get a different result from the same equation.',
+    'A <strong>coefficient</strong> is the number in front of a variable. It tells you exactly how much that variable moves the output. Coefficient 2 means twice the effect of coefficient 1.',
+    'Once you have a value for a, you <strong>substitute</strong> it directly into the next equation. One equation feeds into another.',
+    '<strong>Order of operations</strong>: exponents before multiplication, multiplication before subtraction. Square z first, multiply by 3, then subtract x.'
+  ];
+  document.getElementById('concept-box').innerHTML=`<strong>Key concept:</strong> ${concepts[currentStep]}`;
+  if(!lastX||lastX===7)updateWeDoWithSeeds(7,3,5);
+}
+
+function revealAnswer(btn){
+  document.getElementById('challenge-answer').classList.add('show');
+  btn.style.display='none';
+}
+
+generate();
+renderEditorGrid('adj');
+renderEditorGrid('ani');
+updateListMeta();
+updateExplore();
+</script>
+</body>
+</html>
