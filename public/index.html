@@ -523,8 +523,9 @@ function removeWord(type, idx) {
   updateListMeta(type === 'adj', type === 'ani');
 }
 
-function addWord(type) {
+async function addWord(type) {
   const input = document.getElementById(`${type}-add-input`);
+  const btn   = document.getElementById(`${type}-add-btn`);
   const msg   = document.getElementById(`${type}-msg`);
   const val   = input.value.trim();
 
@@ -544,21 +545,43 @@ function addWord(type) {
   }
 
   if (!/^[a-zA-Z\-']{2,20}$/.test(cap)) {
-    showMsg(msg, 'error', 'Letters only, 2–20 characters.'); return;
+    showMsg(msg, 'error', 'Letters only, 2-20 characters.'); return;
   }
 
-  list.push(cap);
-  input.value = '';
-  showMsg(msg, 'success', `"${cap}" added.`);
+  btn.disabled = true;
+  btn.textContent = 'Checking...';
 
-  document.getElementById('le-adj-panel').style.display = type === 'adj' ? 'block' : 'none';
-  document.getElementById('le-ani-panel').style.display = type === 'ani' ? 'block' : 'none';
+  try {
+    const res  = await fetch('/api/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ word: cap, type })
+    });
+    const data = await res.json();
 
-  renderEditorGrid('adj');
-  renderEditorGrid('ani');
-  updateExplore();
-  updateWeDoWithSeeds(lastX, lastY, lastZ);
-  updateListMeta(type === 'adj', type === 'ani');
+    if (data.valid) {
+      list.push(cap);
+      input.value = '';
+      showMsg(msg, 'success', `"${cap}" added.`);
+      document.getElementById('le-adj-panel').style.display = type === 'adj' ? 'block' : 'none';
+      document.getElementById('le-ani-panel').style.display = type === 'ani' ? 'block' : 'none';
+      renderEditorGrid('adj');
+      renderEditorGrid('ani');
+      updateExplore();
+      updateWeDoWithSeeds(lastX, lastY, lastZ);
+      updateListMeta(type === 'adj', type === 'ani');
+    } else {
+      const hint = type === 'adj'
+        ? `"${cap}" doesn't look like a descriptive adjective. Try something like Blazing, Rapid, or Stealth.`
+        : `"${cap}" doesn't look like an animal. Try something like Hawk, Tiger, or Orca.`;
+      showMsg(msg, 'error', hint);
+    }
+  } catch (e) {
+    showMsg(msg, 'error', 'Could not check word. Try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Add';
+  }
 }
 
 function resetList(type) {
