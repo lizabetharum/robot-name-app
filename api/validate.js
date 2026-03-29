@@ -37,13 +37,21 @@ export default async function handler(req) {
       'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 5,
       messages: [{ role: 'user', content: prompt }]
     })
   });
 
   const data = await response.json();
+
+  if (!response.ok || data.type === 'error') {
+    return new Response(JSON.stringify({ valid: false, error: data?.error?.message || 'API error' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+  }
+
   const answer = data?.content?.[0]?.text?.trim().toLowerCase();
   const valid = answer === 'yes';
 
