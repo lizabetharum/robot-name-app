@@ -473,7 +473,11 @@ async function addWord(type){
     if(data.valid){
       list.push(cap);input.value='';
       showMsg(msg,'success',`"${cap}" added.`);
-      renderEditorGrid(type);updateExplore();updateWeDoWithSeeds(lastX,lastY,lastZ);
+      document.getElementById('le-adj-panel').style.display=type==='adj'?'block':'none';
+      document.getElementById('le-ani-panel').style.display=type==='ani'?'block':'none';
+      renderEditorGrid('adj');
+      renderEditorGrid('ani');
+      updateExplore();updateWeDoWithSeeds(lastX,lastY,lastZ);
       updateListMeta(type==='adj',type==='ani');
     }else{
       const hint=type==='adj'
@@ -505,12 +509,13 @@ function resetList(type){
 
 function switchListTab(type,e){
   activeListTab=type;
-  document.querySelectorAll('.le-tab').forEach(t=>t.classList.remove('active'));
-  e.target.classList.add('active');
-  const adjPanel=document.getElementById('le-adj-panel');
-  const aniPanel=document.getElementById('le-ani-panel');
-  if(adjPanel)adjPanel.style.display=type==='adj'?'block':'none';
-  if(aniPanel)aniPanel.style.display=type==='ani'?'block':'none';
+  const editor=document.querySelector('.list-editor');
+  if(editor){
+    editor.querySelectorAll('.le-tab').forEach(t=>t.classList.remove('active'));
+    e.target.classList.add('active');
+  }
+  document.getElementById('le-adj-panel').style.display=type==='adj'?'block':'none';
+  document.getElementById('le-ani-panel').style.display=type==='ani'?'block':'none';
   renderEditorGrid(type);
 }
 
@@ -529,7 +534,8 @@ function updateExplore(){
   document.getElementById('lc-ai').textContent=`${a} mod ${ADJS.length} = ${ai}`;
   document.getElementById('lc-b').textContent=`(${a} + ${z}) mod ${ANIMALS.length} = ${b}`;
   document.getElementById('lc-n').textContent=`3(${z})² − ${x} = ${n}`;
-  renderEditorGrid(activeListTab);
+  renderEditorGrid('adj');
+  renderEditorGrid('ani');
   
   
 }
