@@ -441,55 +441,31 @@ function removeWord(type,idx){
   updateListMeta(type==='adj',type==='ani');
 }
 
-async function addWord(type){
+function addWord(type){
   const input=document.getElementById(`${type}-add-input`);
-  const btn=document.getElementById(`${type}-add-btn`);
   const msg=document.getElementById(`${type}-msg`);
   const val=input.value.trim();
   if(!val){showMsg(msg,'error','Type a word first.');return;}
   const max=type==='adj'?40:20;
   const list=type==='adj'?ADJS:ANIMALS;
   if(list.length>=max){showMsg(msg,'error',`Maximum ${max} words reached.`);return;}
-
   const cap=val.charAt(0).toUpperCase()+val.slice(1).toLowerCase();
   if(list.map(w=>w.toLowerCase()).includes(cap.toLowerCase())){
     showMsg(msg,'error',`"${cap}" is already in the list.`);return;
   }
-
-  btn.disabled=true;btn.textContent='Checking...';btn.classList.add('checking');
-  msg.style.display='none';msg.className='validation-msg';
-
-  try{
-    const res=await fetch('/api/validate',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({word:cap,type})
-    });
-    const data=await res.json();
-    if(res.status===500){
-      showMsg(msg,'error','API key not configured. Ask your teacher to set up the Vercel environment variable.');
-      return;
-    }
-    if(data.valid){
-      list.push(cap);input.value='';
-      showMsg(msg,'success',`"${cap}" added.`);
-      document.getElementById('le-adj-panel').style.display=type==='adj'?'block':'none';
-      document.getElementById('le-ani-panel').style.display=type==='ani'?'block':'none';
-      renderEditorGrid('adj');
-      renderEditorGrid('ani');
-      updateExplore();updateWeDoWithSeeds(lastX,lastY,lastZ);
-      updateListMeta(type==='adj',type==='ani');
-    }else{
-      const hint=type==='adj'
-        ?`"${cap}" doesn't look like a descriptive adjective. Try something like Blazing, Rapid, or Stealth.`
-        :`"${cap}" doesn't look like an animal. Try something like Hawk, Tiger, or Orca.`;
-      showMsg(msg,'error',hint);
-    }
-  }catch(e){
-    showMsg(msg,'error','Could not reach the validator. Check your internet connection and try again.');
-  }finally{
-    btn.disabled=false;btn.textContent='Add';btn.classList.remove('checking');
+  if(!/^[a-zA-Z\-']{2,20}$/.test(cap)){
+    showMsg(msg,'error','Words must be letters only, 2–20 characters.');return;
   }
+  list.push(cap);
+  input.value='';
+  showMsg(msg,'success',`"${cap}" added.`);
+  document.getElementById('le-adj-panel').style.display=type==='adj'?'block':'none';
+  document.getElementById('le-ani-panel').style.display=type==='ani'?'block':'none';
+  renderEditorGrid('adj');
+  renderEditorGrid('ani');
+  updateExplore();
+  updateWeDoWithSeeds(lastX,lastY,lastZ);
+  updateListMeta(type==='adj',type==='ani');
 }
 
 function showMsg(el,type,text){
