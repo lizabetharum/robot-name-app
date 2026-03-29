@@ -523,42 +523,31 @@ function removeWord(type, idx) {
   updateListMeta(type === 'adj', type === 'ani');
 }
 
-function addWord(type) {
-  const input = document.getElementById(`${type}-add-input`);
-  const msg   = document.getElementById(`${type}-msg`);
-  const val   = input.value.trim();
-
-  if (!val) { showMsg(msg, 'error', 'Type a word first.'); return; }
-
-  const max  = type === 'adj' ? 40 : 20;
-  const list = type === 'adj' ? ADJS : ANIMALS;
-
-  if (list.length >= max) {
-    showMsg(msg, 'error', `Maximum ${max} words reached.`); return;
+function addWord(type){
+  const input=document.getElementById(`${type}-add-input`);
+  const msg=document.getElementById(`${type}-msg`);
+  const val=input.value.trim();
+  if(!val){showMsg(msg,'error','Type a word first.');return;}
+  const max=type==='adj'?40:20;
+  const list=type==='adj'?ADJS:ANIMALS;
+  if(list.length>=max){showMsg(msg,'error',`Maximum ${max} words reached.`);return;}
+  const cap=val.charAt(0).toUpperCase()+val.slice(1).toLowerCase();
+  if(list.map(w=>w.toLowerCase()).includes(cap.toLowerCase())){
+    showMsg(msg,'error',`"${cap}" is already in the list.`);return;
   }
-
-  const cap = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
-
-  if (list.map(w => w.toLowerCase()).includes(cap.toLowerCase())) {
-    showMsg(msg, 'error', `"${cap}" is already in the list.`); return;
+  if(!/^[a-zA-Z\-']{2,20}$/.test(cap)){
+    showMsg(msg,'error','Letters only, 2-20 characters.');return;
   }
-
-  if (!/^[a-zA-Z\-']{2,20}$/.test(cap)) {
-    showMsg(msg, 'error', 'Letters only, 2–20 characters.'); return;
-  }
-
   list.push(cap);
-  input.value = '';
-  showMsg(msg, 'success', `"${cap}" added.`);
-
-  document.getElementById('le-adj-panel').style.display = type === 'adj' ? 'block' : 'none';
-  document.getElementById('le-ani-panel').style.display = type === 'ani' ? 'block' : 'none';
-
+  input.value='';
+  showMsg(msg,'success',`"${cap}" added.`);
+  document.getElementById('le-adj-panel').style.display=type==='adj'?'block':'none';
+  document.getElementById('le-ani-panel').style.display=type==='ani'?'block':'none';
   renderEditorGrid('adj');
   renderEditorGrid('ani');
   updateExplore();
-  updateWeDoWithSeeds(lastX, lastY, lastZ);
-  updateListMeta(type === 'adj', type === 'ani');
+  updateWeDoWithSeeds(lastX,lastY,lastZ);
+  updateListMeta(type==='adj',type==='ani');
 }
 
 function resetList(type) {
