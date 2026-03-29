@@ -340,218 +340,307 @@ body{font-family:'Montserrat',sans-serif;background:#f5f5f7;color:#2B2D42;min-he
 </div><!-- /container -->
 
 <script>
-const DEFAULT_ADJS=['Atomic','Binary','Charged','Delta','Electric','Fierce','Galactic','Hyper','Iron','Kinetic','Laser','Magnetic','Nitro','Orbital','Plasma','Quantum','Rapid','Sonic','Turbo','Ultra','Vector','Warp','Xenon','Zero','Apex','Blaze'];
-const DEFAULT_ANIMALS=['Falcons','Jaguars','Raptors','Wolves','Cobras','Sharks','Vipers','Eagles','Panthers','Lynx','Stallions','Ravens'];
-let ADJS=[...DEFAULT_ADJS];
-let ANIMALS=[...DEFAULT_ANIMALS];
-let lastX=7,lastY=3,lastZ=5,lastAI=0,lastB=0;
-let currentStep=0,activeListTab='adj';
+const DEFAULT_ADJS = ['Atomic','Binary','Charged','Delta','Electric','Fierce','Galactic','Hyper','Iron','Kinetic','Laser','Magnetic','Nitro','Orbital','Plasma','Quantum','Rapid','Sonic','Turbo','Ultra','Vector','Warp','Xenon','Zero','Apex','Blaze'];
+const DEFAULT_ANIMALS = ['Falcons','Jaguars','Raptors','Wolves','Cobras','Sharks','Vipers','Eagles','Panthers','Lynx','Stallions','Ravens'];
 
-function computeAll(x,y,z){
-  const a=2*x+y-1;
-  const ai=((a%ADJS.length)+ADJS.length)%ADJS.length;
-  const b=((a+z)%ANIMALS.length+ANIMALS.length)%ANIMALS.length;
-  const n=3*z*z-x;
-  return{a,ai,b,n};
+let ADJS = [...DEFAULT_ADJS];
+let ANIMALS = [...DEFAULT_ANIMALS];
+let lastX = 7, lastY = 3, lastZ = 5, lastAI = 0, lastB = 0;
+let currentStep = 0, activeListTab = 'adj';
+
+// ─── MATH ────────────────────────────────────────────────
+
+function computeAll(x, y, z) {
+  const a  = 2 * x + y - 1;
+  const ai = ((a % ADJS.length) + ADJS.length) % ADJS.length;
+  const b  = ((a + z) % ANIMALS.length + ANIMALS.length) % ANIMALS.length;
+  const n  = 3 * z * z - x;
+  return { a, ai, b, n };
 }
 
-function generate(){
-  const x=Math.floor(Math.random()*10)+1;
-  const y=Math.floor(Math.random()*10)+1;
-  const z=Math.floor(Math.random()*10)+1;
-  lastX=x;lastY=y;lastZ=z;
-  document.getElementById('seed-x').textContent=x;
-  document.getElementById('seed-y').textContent=y;
-  document.getElementById('seed-z').textContent=z;
-  const{a,ai,b,n}=computeAll(x,y,z);
-  lastAI=ai;lastB=b;
-  const adj=ADJS[ai],animal=ANIMALS[b];
-  document.getElementById('name-display').innerHTML=`<div class="team-name">${adj} <span>${animal}</span> ${n}</div>`;
-  document.getElementById('eq-adj').textContent=`a = 2(${x}) + ${y} − 1 = ${a}  →  mod ${ADJS.length} = ${ai}  →  "${adj}"`;
-  document.getElementById('res-adj').textContent=adj;
-  document.getElementById('eq-animal').textContent=`b = (${a} + ${z}) mod ${ANIMALS.length} = ${b}  →  "${animal}"`;
-  document.getElementById('res-animal').textContent=animal;
-  document.getElementById('eq-num').textContent=`n = 3(${z})² − ${x} = ${n}`;
-  document.getElementById('res-num').textContent=n;
-  document.getElementById('math-trail').style.display='block';
-  updateWeDoWithSeeds(x,y,z);
-  
+// ─── I DO ────────────────────────────────────────────────
+
+function generate() {
+  const x = Math.floor(Math.random() * 10) + 1;
+  const y = Math.floor(Math.random() * 10) + 1;
+  const z = Math.floor(Math.random() * 10) + 1;
+  lastX = x; lastY = y; lastZ = z;
+
+  document.getElementById('seed-x').textContent = x;
+  document.getElementById('seed-y').textContent = y;
+  document.getElementById('seed-z').textContent = z;
+
+  const { a, ai, b, n } = computeAll(x, y, z);
+  lastAI = ai; lastB = b;
+
+  const adj = ADJS[ai], animal = ANIMALS[b];
+
+  document.getElementById('name-display').innerHTML =
+    `<div class="team-name">${adj} <span>${animal}</span> ${n}</div>`;
+
+  document.getElementById('eq-adj').textContent =
+    `a = 2(${x}) + ${y} − 1 = ${a}  →  mod ${ADJS.length} = ${ai}  →  "${adj}"`;
+  document.getElementById('res-adj').textContent = adj;
+
+  document.getElementById('eq-animal').textContent =
+    `b = (${a} + ${z}) mod ${ANIMALS.length} = ${b}  →  "${animal}"`;
+  document.getElementById('res-animal').textContent = animal;
+
+  document.getElementById('eq-num').textContent =
+    `n = 3(${z})² − ${x} = ${n}`;
+  document.getElementById('res-num').textContent = n;
+
+  document.getElementById('math-trail').style.display = 'block';
+
+  updateWeDoWithSeeds(x, y, z);
 }
 
-function updateWeDoWithSeeds(x,y,z){
-  const{a,ai,b,n}=computeAll(x,y,z);
-  lastAI=ai;lastB=b;
-  const eq0=document.getElementById('we-eq0');if(eq0)eq0.textContent=`x = ${x},  y = ${y},  z = ${z}`;
-  const eq1=document.getElementById('we-eq1');if(eq1)eq1.textContent=`a = 2(${x}) + ${y} − 1 = ${a}  →  mod ${ADJS.length} = ${ai}  →  "${ADJS[ai]}"`;
-  const eq2=document.getElementById('we-eq2');if(eq2)eq2.textContent=`b = (${a} + ${z}) mod ${ANIMALS.length} = ${b}  →  "${ANIMALS[b]}"`;
-  const eq3=document.getElementById('we-eq3');if(eq3)eq3.textContent=`n = 3(${z})² − ${x} = 3×${z*z} − ${x} = ${n}`;
+// ─── WE DO ───────────────────────────────────────────────
+
+function updateWeDoWithSeeds(x, y, z) {
+  const { a, ai, b, n } = computeAll(x, y, z);
+  lastAI = ai; lastB = b;
+
+  const eq0 = document.getElementById('we-eq0');
+  if (eq0) eq0.textContent = `x = ${x},  y = ${y},  z = ${z}`;
+
+  const eq1 = document.getElementById('we-eq1');
+  if (eq1) eq1.textContent =
+    `a = 2(${x}) + ${y} − 1 = ${a}  →  mod ${ADJS.length} = ${ai}  →  "${ADJS[ai]}"`;
+
+  const eq2 = document.getElementById('we-eq2');
+  if (eq2) eq2.textContent =
+    `b = (${a} + ${z}) mod ${ANIMALS.length} = ${b}  →  "${ANIMALS[b]}"`;
+
+  const eq3 = document.getElementById('we-eq3');
+  if (eq3) eq3.textContent =
+    `n = 3(${z})² − ${x} = 3×${z * z} − ${x} = ${n}`;
+
   updateListMeta();
 }
 
-function updateListMeta(flashAdj,flashAni){
-  const al=ADJS.length,anl=ANIMALS.length;
-  const ids={
-    'we-adj-count':al,'we-adj-max':al-1,
-    'we-ani-count':anl,'we-ani-max':anl-1,
-    
-    'le-adj-count-2':al,'le-ani-count-2':anl
-  };
-  Object.entries(ids).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.textContent=val;});
-  document.querySelectorAll('.we-adj-mod').forEach(el=>el.textContent=al);
-  document.querySelectorAll('.we-ani-mod').forEach(el=>el.textContent=anl);
-  const weMe=document.getElementById('we-mod-example');if(weMe)weMe.textContent=`29 mod ${al} = ${29%al}`;
-  const madj=document.getElementById('mod-adj-val');
-  const mani=document.getElementById('mod-ani-val');
-  if(madj){madj.textContent=al;if(flashAdj){madj.classList.add('flash');setTimeout(()=>madj.classList.remove('flash'),1200);}}
-  if(mani){mani.textContent=anl;if(flashAni){mani.classList.add('flash');setTimeout(()=>mani.classList.remove('flash'),1200);}}
-}
+function stepNav(dir) {
+  document.getElementById('step-' + currentStep).classList.remove('active');
+  currentStep = Math.max(0, Math.min(3, currentStep + dir));
+  document.getElementById('step-' + currentStep).classList.add('active');
+  document.getElementById('prev-btn').disabled = currentStep === 0;
+  document.getElementById('next-btn').disabled = currentStep === 3;
 
-function renderEditorGrid(type){
-  const list=type==='adj'?ADJS:ANIMALS;
-  const{ai,b}=computeAll(
-    parseInt(document.getElementById('slider-x').value),
-    parseInt(document.getElementById('slider-y').value),
-    parseInt(document.getElementById('slider-z').value)
-  );
-  const activeIdx=type==='adj'?ai:b;
-  const grid=document.getElementById(`le-${type}-grid`);
-  if(!grid)return;
-  grid.innerHTML=list.map((w,i)=>`
-    <div class="le-item${i===activeIdx?' active-word':''}" id="le-item-${type}-${i}">
-      <span class="li-idx">${i}</span>
-      <input type="text" value="${w}" maxlength="20"
-        onchange="editWord('${type}',${i},this.value)"
-        oninput="editWord('${type}',${i},this.value)">
-      ${list.length>3?`<button class="remove-btn" onclick="removeWord('${type}',${i})">×</button>`:''}
-    </div>`).join('');
-}
-
-function editWord(type,idx,val){
-  if(!val.trim())return;
-  if(type==='adj')ADJS[idx]=val.trim();else ANIMALS[idx]=val.trim();
-  updateExplore();updateWeDoWithSeeds(lastX,lastY,lastZ);updateListMeta();
-}
-
-function removeWord(type,idx){
-  const list=type==='adj'?ADJS:ANIMALS;
-  if(list.length<=3)return;
-  list.splice(idx,1);
-  renderEditorGrid(type);updateExplore();updateWeDoWithSeeds(lastX,lastY,lastZ);
-  
-  updateListMeta(type==='adj',type==='ani');
-}
-
-function addWord(type){
-  const input=document.getElementById(`${type}-add-input`);
-  const msg=document.getElementById(`${type}-msg`);
-  const val=input.value.trim();
-  if(!val){showMsg(msg,'error','Type a word first.');return;}
-  const max=type==='adj'?40:20;
-  const list=type==='adj'?ADJS:ANIMALS;
-  if(list.length>=max){showMsg(msg,'error',`Maximum ${max} words reached.`);return;}
-  const cap=val.charAt(0).toUpperCase()+val.slice(1).toLowerCase();
-  if(list.map(w=>w.toLowerCase()).includes(cap.toLowerCase())){
-    showMsg(msg,'error',`"${cap}" is already in the list.`);return;
-  }
-  if(!/^[a-zA-Z\-']{2,20}$/.test(cap)){
-    showMsg(msg,'error','Words must be letters only, 2–20 characters.');return;
-  }
-  list.push(cap);
-  input.value='';
-  showMsg(msg,'success',`"${cap}" added.`);
-  document.getElementById('le-adj-panel').style.display=type==='adj'?'block':'none';
-  document.getElementById('le-ani-panel').style.display=type==='ani'?'block':'none';
-  renderEditorGrid('adj');
-  renderEditorGrid('ani');
-  updateExplore();
-  updateWeDoWithSeeds(lastX,lastY,lastZ);
-  updateListMeta(type==='adj',type==='ani');
-}
-
-function showMsg(el,type,text){
-  el.textContent=text;
-  el.className='validation-msg '+type;
-  setTimeout(()=>{el.className='validation-msg';el.textContent='';},4000);
-}
-
-function resetList(type){
-  if(type==='adj')ADJS=[...DEFAULT_ADJS];else ANIMALS=[...DEFAULT_ANIMALS];
-  document.getElementById(`${type}-add-input`).value='';
-  renderEditorGrid(type);updateExplore();updateWeDoWithSeeds(lastX,lastY,lastZ);
-  
-  updateListMeta(type==='adj',type==='ani');
-}
-
-
-function switchListTab(type,e){
-  activeListTab=type;
-  const editor=document.querySelector('.list-editor');
-  if(editor){
-    editor.querySelectorAll('.le-tab').forEach(t=>t.classList.remove('active'));
-    e.target.classList.add('active');
-  }
-  document.getElementById('le-adj-panel').style.display=type==='adj'?'block':'none';
-  document.getElementById('le-ani-panel').style.display=type==='ani'?'block':'none';
-  renderEditorGrid(type);
-}
-
-function updateExplore(){
-  const x=parseInt(document.getElementById('slider-x').value);
-  const y=parseInt(document.getElementById('slider-y').value);
-  const z=parseInt(document.getElementById('slider-z').value);
-  document.getElementById('val-x').textContent=x;
-  document.getElementById('val-y').textContent=y;
-  document.getElementById('val-z').textContent=z;
-  const{a,ai,b,n}=computeAll(x,y,z);
-  lastAI=ai;lastB=b;
-  document.getElementById('you-name').innerHTML=`${ADJS[ai]} <span>${ANIMALS[b]}</span> ${n}`;
-  document.getElementById('you-math').textContent=`x=${x},  y=${y},  z=${z}`;
-  document.getElementById('lc-a').textContent=`2(${x}) + ${y} − 1 = ${a}`;
-  document.getElementById('lc-ai').textContent=`${a} mod ${ADJS.length} = ${ai}`;
-  document.getElementById('lc-b').textContent=`(${a} + ${z}) mod ${ANIMALS.length} = ${b}`;
-  document.getElementById('lc-n').textContent=`3(${z})² − ${x} = ${n}`;
-  renderEditorGrid('adj');
-  renderEditorGrid('ani');
-  
-  
-}
-
-function switchTab(tab,e){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('view-'+tab).classList.add('active');
-  e.target.closest('.tab').classList.add('active');
-  if(tab==='wedo'){updateWeDoWithSeeds(lastX,lastY,lastZ);}
-  if(tab==='youdo'){updateExplore();renderEditorGrid(activeListTab);}
-}
-
-function stepNav(dir){
-  document.getElementById('step-'+currentStep).classList.remove('active');
-  currentStep=Math.max(0,Math.min(3,currentStep+dir));
-  document.getElementById('step-'+currentStep).classList.add('active');
-  document.getElementById('prev-btn').disabled=currentStep===0;
-  document.getElementById('next-btn').disabled=currentStep===3;
-  const concepts=[
+  const concepts = [
     'A <strong>variable</strong> is just a placeholder for a number. x and y can be anything. Plug in any two integers and you get a different result from the same equation.',
     'A <strong>coefficient</strong> is the number in front of a variable. It tells you exactly how much that variable moves the output. Coefficient 2 means twice the effect of coefficient 1.',
     'Once you have a value for a, you <strong>substitute</strong> it directly into the next equation. One equation feeds into another.',
     '<strong>Order of operations</strong>: exponents before multiplication, multiplication before subtraction. Square z first, multiply by 3, then subtract x.'
   ];
-  document.getElementById('concept-box').innerHTML=`<strong>Key concept:</strong> ${concepts[currentStep]}`;
-  if(!lastX||lastX===7)updateWeDoWithSeeds(7,3,5);
+  document.getElementById('concept-box').innerHTML =
+    `<strong>Key concept:</strong> ${concepts[currentStep]}`;
+
+  if (!lastX || lastX === 7) updateWeDoWithSeeds(7, 3, 5);
 }
 
-function revealAnswer(btn){
-  document.getElementById('challenge-answer').classList.add('show');
-  btn.style.display='none';
+// ─── YOU DO ──────────────────────────────────────────────
+
+function updateExplore() {
+  const x = parseInt(document.getElementById('slider-x').value);
+  const y = parseInt(document.getElementById('slider-y').value);
+  const z = parseInt(document.getElementById('slider-z').value);
+
+  document.getElementById('val-x').textContent = x;
+  document.getElementById('val-y').textContent = y;
+  document.getElementById('val-z').textContent = z;
+
+  const { a, ai, b, n } = computeAll(x, y, z);
+  lastAI = ai; lastB = b;
+
+  document.getElementById('you-name').innerHTML =
+    `${ADJS[ai]} <span>${ANIMALS[b]}</span> ${n}`;
+  document.getElementById('you-math').textContent =
+    `x=${x},  y=${y},  z=${z}`;
+
+  document.getElementById('lc-a').textContent =
+    `2(${x}) + ${y} − 1 = ${a}`;
+  document.getElementById('lc-ai').textContent =
+    `${a} mod ${ADJS.length} = ${ai}`;
+  document.getElementById('lc-b').textContent =
+    `(${a} + ${z}) mod ${ANIMALS.length} = ${b}`;
+  document.getElementById('lc-n').textContent =
+    `3(${z})² − ${x} = ${n}`;
+
+  renderEditorGrid('adj');
+  renderEditorGrid('ani');
 }
+
+function revealAnswer(btn) {
+  document.getElementById('challenge-answer').classList.add('show');
+  btn.style.display = 'none';
+}
+
+// ─── LIST EDITOR ─────────────────────────────────────────
+
+function renderEditorGrid(type) {
+  const list = type === 'adj' ? ADJS : ANIMALS;
+  const sliderX = document.getElementById('slider-x');
+  const sliderY = document.getElementById('slider-y');
+  const sliderZ = document.getElementById('slider-z');
+  const x = sliderX ? parseInt(sliderX.value) : lastX;
+  const y = sliderY ? parseInt(sliderY.value) : lastY;
+  const z = sliderZ ? parseInt(sliderZ.value) : lastZ;
+  const { ai, b } = computeAll(x, y, z);
+  const activeIdx = type === 'adj' ? ai : b;
+
+  const grid = document.getElementById(`le-${type}-grid`);
+  if (!grid) return;
+
+  grid.innerHTML = list.map((w, i) => `
+    <div class="le-item${i === activeIdx ? ' active-word' : ''}" id="le-item-${type}-${i}">
+      <span class="li-idx">${i}</span>
+      <input type="text" value="${w}" maxlength="20"
+        onchange="editWord('${type}',${i},this.value)"
+        oninput="editWord('${type}',${i},this.value)">
+      ${list.length > 3
+        ? `<button class="remove-btn" onclick="removeWord('${type}',${i})">×</button>`
+        : ''}
+    </div>`).join('');
+}
+
+function editWord(type, idx, val) {
+  if (!val.trim()) return;
+  if (type === 'adj') ADJS[idx] = val.trim();
+  else ANIMALS[idx] = val.trim();
+  updateExplore();
+  updateWeDoWithSeeds(lastX, lastY, lastZ);
+  updateListMeta();
+}
+
+function removeWord(type, idx) {
+  const list = type === 'adj' ? ADJS : ANIMALS;
+  if (list.length <= 3) return;
+  list.splice(idx, 1);
+  renderEditorGrid('adj');
+  renderEditorGrid('ani');
+  updateExplore();
+  updateWeDoWithSeeds(lastX, lastY, lastZ);
+  updateListMeta(type === 'adj', type === 'ani');
+}
+
+function addWord(type) {
+  const input = document.getElementById(`${type}-add-input`);
+  const msg   = document.getElementById(`${type}-msg`);
+  const val   = input.value.trim();
+
+  if (!val) { showMsg(msg, 'error', 'Type a word first.'); return; }
+
+  const max  = type === 'adj' ? 40 : 20;
+  const list = type === 'adj' ? ADJS : ANIMALS;
+
+  if (list.length >= max) {
+    showMsg(msg, 'error', `Maximum ${max} words reached.`); return;
+  }
+
+  const cap = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+
+  if (list.map(w => w.toLowerCase()).includes(cap.toLowerCase())) {
+    showMsg(msg, 'error', `"${cap}" is already in the list.`); return;
+  }
+
+  if (!/^[a-zA-Z\-']{2,20}$/.test(cap)) {
+    showMsg(msg, 'error', 'Letters only, 2–20 characters.'); return;
+  }
+
+  list.push(cap);
+  input.value = '';
+  showMsg(msg, 'success', `"${cap}" added.`);
+
+  document.getElementById('le-adj-panel').style.display = type === 'adj' ? 'block' : 'none';
+  document.getElementById('le-ani-panel').style.display = type === 'ani' ? 'block' : 'none';
+
+  renderEditorGrid('adj');
+  renderEditorGrid('ani');
+  updateExplore();
+  updateWeDoWithSeeds(lastX, lastY, lastZ);
+  updateListMeta(type === 'adj', type === 'ani');
+}
+
+function resetList(type) {
+  if (type === 'adj') ADJS = [...DEFAULT_ADJS];
+  else ANIMALS = [...DEFAULT_ANIMALS];
+  document.getElementById(`${type}-add-input`).value = '';
+  renderEditorGrid('adj');
+  renderEditorGrid('ani');
+  updateExplore();
+  updateWeDoWithSeeds(lastX, lastY, lastZ);
+  updateListMeta(type === 'adj', type === 'ani');
+}
+
+function showMsg(el, type, text) {
+  el.textContent = text;
+  el.className = 'validation-msg ' + type;
+  setTimeout(() => { el.className = 'validation-msg'; el.textContent = ''; }, 4000);
+}
+
+function switchListTab(type, e) {
+  activeListTab = type;
+  const editor = document.querySelector('.list-editor');
+  if (editor) {
+    editor.querySelectorAll('.le-tab').forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+  }
+  document.getElementById('le-adj-panel').style.display = type === 'adj' ? 'block' : 'none';
+  document.getElementById('le-ani-panel').style.display = type === 'ani' ? 'block' : 'none';
+  renderEditorGrid(type);
+}
+
+// ─── SHARED ──────────────────────────────────────────────
+
+function updateListMeta(flashAdj, flashAni) {
+  const al  = ADJS.length;
+  const anl = ANIMALS.length;
+
+  const ids = {
+    'we-adj-count': al,  'we-adj-max': al - 1,
+    'we-ani-count': anl, 'we-ani-max': anl - 1,
+    'le-adj-count-2': al, 'le-ani-count-2': anl
+  };
+  Object.entries(ids).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  });
+
+  document.querySelectorAll('.we-adj-mod').forEach(el => el.textContent = al);
+  document.querySelectorAll('.we-ani-mod').forEach(el => el.textContent = anl);
+
+  const weMe = document.getElementById('we-mod-example');
+  if (weMe) weMe.textContent = `29 mod ${al} = ${29 % al}`;
+
+  const madj = document.getElementById('mod-adj-val');
+  const mani = document.getElementById('mod-ani-val');
+  if (madj) {
+    madj.textContent = al;
+    if (flashAdj) { madj.classList.add('flash'); setTimeout(() => madj.classList.remove('flash'), 1200); }
+  }
+  if (mani) {
+    mani.textContent = anl;
+    if (flashAni) { mani.classList.add('flash'); setTimeout(() => mani.classList.remove('flash'), 1200); }
+  }
+}
+
+function switchTab(tab, e) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  e.target.closest('.tab').classList.add('active');
+  if (tab === 'wedo') updateWeDoWithSeeds(lastX, lastY, lastZ);
+  if (tab === 'youdo') { updateExplore(); renderEditorGrid(activeListTab); }
+}
+
+// ─── INIT ────────────────────────────────────────────────
 
 generate();
 renderEditorGrid('adj');
 renderEditorGrid('ani');
-
 updateListMeta();
 updateExplore();
+
 </script>
 </body>
 </html>
