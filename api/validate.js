@@ -17,43 +17,20 @@ export default async function handler(req) {
     });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'API key not configured' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
+  const trimmed = word.trim();
 
-  const prompt = type === 'adj'
-    ? `Is "${word}" a descriptive adjective in English (a word that describes a quality, like "fierce" or "electric")? Reply with only "yes" or "no".`
-    : `Is "${word}" a real animal in English (like "falcon" or "cobra")? Reply with only "yes" or "no".`;
+  // Basic sanity checks — no numbers, no special characters, reasonable length
+  const isReasonableWord = /^[a-zA-Z\-']{2,20}$/.test(trimmed);
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
+  return new Response(JSON.stringify({ valid: isReasonableWord, word: trimmed, type }), {
+    status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01'
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 5,
-      messages: [{ role: 'user', content: prompt }]
-    })
+      'Access-Control-Allow-Origin': '*'
+    }
   });
+}
 
-  const data = await response.json();
-
-  if (!response.ok || data.type === 'error') {
-    return new Response(JSON.stringify({ valid: false, error: data?.error?.message || 'API error' }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-    });
-  }
-
-  const answer = data?.content?.[0]?.text?.trim().toLowerCase();
-  const valid = answer === 'yes';
 
   return new Response(JSON.stringify({ valid, word, type }), {
     status: 200,
