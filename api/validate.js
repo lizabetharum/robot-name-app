@@ -18,21 +18,9 @@ export default async function handler(req) {
   }
 
   const trimmed = word.trim();
-
-  // Basic sanity checks — no numbers, no special characters, reasonable length
   const isReasonableWord = /^[a-zA-Z\-']{2,20}$/.test(trimmed);
 
   return new Response(JSON.stringify({ valid: isReasonableWord, word: trimmed, type }), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
-    }
-  });
-}
-
-
-  return new Response(JSON.stringify({ valid, word, type }), {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
